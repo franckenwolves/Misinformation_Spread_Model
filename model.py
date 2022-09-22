@@ -27,6 +27,7 @@ def number_infected(model, write_results = True):
         with open('results1.csv', 'a') as f:
             writer = csv.writer(f)
             for i in data:
+                f.write("\t")
                 f.write(str(data))
     return number_state(model, State.INFECTED)
     
