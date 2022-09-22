@@ -4,6 +4,11 @@ import networkx as nx
 
 import mesa
 
+import csv
+header = ['number infected', ' number susceptible', ' number resistant']
+with open('results1.csv', 'w', newline='') as f:
+    writer = csv.writer(f)
+    writer.writerow(header)
 
 class State(Enum):
     SUSCEPTIBLE = 0
@@ -15,16 +20,41 @@ def number_state(model, state):
     return sum(1 for a in model.grid.get_all_cell_contents() if a.state is state)
 
 
-def number_infected(model):
+def number_infected(model, write_results = True):
+    print("Infected: ", number_state(model, State.INFECTED))
+    data = [number_state(model, State.INFECTED)]
+    if write_results:    
+        with open('results1.csv', 'a') as f:
+            writer = csv.writer(f)
+            for i in data:
+                f.write(str(data))
     return number_state(model, State.INFECTED)
-
-
+    
+    
 def number_susceptible(model):
+    print("Susceptible: ", number_state(model, State.SUSCEPTIBLE))
+    data = [number_state(model, State.SUSCEPTIBLE)]
+    with open('results1.csv', 'a') as f:
+        writer = csv.writer(f)
+        for i in data:
+            f.write("\t\t")
+            f.write(str(data))
     return number_state(model, State.SUSCEPTIBLE)
-
-
+    
+    
 def number_resistant(model):
+    print("Resistant: ", number_state(model, State.RESISTANT))
+    data = [number_state(model, State.RESISTANT)]
+    with open('results1.csv', 'a') as f:
+        writer = csv.writer(f)
+        for i in data:
+            f.write("\t\t")
+            f.write(str(data))
+        f.write("\n")
     return number_state(model, State.RESISTANT)
+
+   
+
 
 
 class VirusOnNetwork(mesa.Model):
@@ -159,16 +189,5 @@ class VirusAgent(mesa.Agent):
             self.try_to_infect_neighbors()
         self.try_check_situation()
 
-import csv
-header = ['number_infected', 'number_susceptible', 'number_resistant']
 
-data = [number_infected, number_susceptible, number_resistant]
-
-with open('results.csv', 'w', newline='') as f:
      
-     writer = csv.writer(f)
-
-     writer.writerow(header)
-
-     for i in data:
-        writer.writerow(data)
