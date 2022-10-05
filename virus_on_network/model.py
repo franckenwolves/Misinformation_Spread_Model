@@ -127,9 +127,13 @@ class VirusOnNetwork(mesa.Model):
             #return math.inf
 
     def step(self):
+        with open('results1.csv', 'a') as f:
+                    f.write(str(self.step_number +1))
+                    f.write(",")
         self.schedule.step()
         # collect data
         self.datacollector.collect(self)
+        self.step_number = self.step_number +1
 
     def run_model(self, n):
         for i in range(n):
