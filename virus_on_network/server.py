@@ -16,12 +16,12 @@ def network_portrayal(G):
         )
 
     def edge_color(agent1, agent2):
-        if State.RESISTANT in (agent1.state, agent2.state):
+        if State.SKEPTICAL in (agent1.state, agent2.state):
             return "#000000"
         return "#e8e8e8"
 
     def edge_width(agent1, agent2):
-        if State.RESISTANT in (agent1.state, agent2.state):
+        if State.SKEPTICAL in (agent1.state, agent2.state):
             return 3
         return 2
 
@@ -56,17 +56,17 @@ chart = mesa.visualization.ChartModule(
     [
         {"Label": "Infected", "Color": "#FF0000"},
         {"Label": "Susceptible", "Color": "#008000"},
-        {"Label": "Resistant", "Color": "#808080"},
+        {"Label": "Skeptical", "Color": "#808080"},
     ]
 )
 
 
-def get_resistant_susceptible_ratio(model):
-    ratio = model.resistant_susceptible_ratio()
+def get_skeptical_susceptible_ratio(model):
+    ratio = model.skeptical_susceptible_ratio()
     ratio_text = "&infin;" if ratio is math.inf else f"{ratio:.2f}"
     infected_text = str(number_infected(model))
 
-    return "Resistant/Susceptible Ratio: {}<br>Infected Remaining: {}".format(
+    return "Skeptical/Susceptible Ratio: {}<br>Infected Remaining: {}".format(
         ratio_text, infected_text
     )
 
@@ -115,20 +115,20 @@ model_params = {
         #0.1,
         #description="Probability that the virus will be removed",
     #),
-   # "gain_resistance_chance": mesa.visualization.Slider(
-       # "Gain Resistance Chance",
-       # 0.5,
-       # 0.0,
-       # 1.0,
-       # 0.1,
-       # description="Probability that a recovered agent will become "
-       # "resistant to this virus in the future",
-   # ),
+    "gain_skeptical_chance": mesa.visualization.Slider(
+        "Gain Skeptical Chance",
+        0.5,
+        0.0,
+        1.0,
+        0.1,
+        description="Probability that a recovered agent will become "
+        "skeptical to this virus in the future",
+    ),
 }
 
 server = mesa.visualization.ModularServer(
     VirusOnNetwork,
-    [network, chart], #need to add ", get_resistant_susceptible_ratio" to this line in between network and charty to get the original
+    [network, chart], #need to add ", get_skeptical_susceptible_ratio" to this line in between network and charty to get the original
     "Virus Model",
     model_params,
 )

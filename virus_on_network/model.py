@@ -5,7 +5,7 @@ import networkx as nx
 import mesa
 
 import csv
-header = ['number infected', ' number susceptible', ' number resistant']
+header = ['number infected', ' number susceptible', ' number skeptical']
 with open('results1.csv', 'w', newline='') as f:
     writer = csv.writer(f)
     writer.writerow(header)
@@ -13,7 +13,7 @@ with open('results1.csv', 'w', newline='') as f:
 class State(Enum):
     SUSCEPTIBLE = 0
     INFECTED = 1
-    RESISTANT = 2
+    SKEPTICAL = 2
 
 
 def number_state(model, state):
@@ -43,16 +43,16 @@ def number_susceptible(model):
     return number_state(model, State.SUSCEPTIBLE)
     
     
-#def number_resistant(model):
-    #print("Resistant: ", number_state(model, State.RESISTANT))
-    #data = [number_state(model, State.RESISTANT)]
-    #with open('results1.csv', 'a') as f:
-        #writer = csv.writer(f)
-        #for i in data:
-            #f.write("\t\t")
-            #f.write(str(data))
-        #f.write("\n")
-    #return number_state(model, State.RESISTANT)
+def number_skeptical(model):
+    print("Skeptical: ", number_state(model, State.SKEPTICAL))
+    data = [number_state(model, State.SKEPTICAL)]
+    with open('results1.csv', 'a') as f:
+        writer = csv.writer(f)
+        for i in data:
+            f.write("\t\t")
+            f.write(str(data))
+        f.write("\n")
+    return number_state(model, State.SKEPTICAL)
 
    
 
@@ -68,8 +68,8 @@ class VirusOnNetwork(mesa.Model):
         initial_outbreak_size=1,
         virus_spread_chance=0.4,
         virus_check_frequency=0.4,
-        recovery_chance=0.3,
-        #gain_resistance_chance=0.5,
+        #recovery_chance=0.3,
+        gain_skeptical_chance=0.5,
     ):
 
         self.num_nodes = num_nodes
@@ -83,13 +83,13 @@ class VirusOnNetwork(mesa.Model):
         self.virus_spread_chance = virus_spread_chance
         self.virus_check_frequency = virus_check_frequency
         #self.recovery_chance = recovery_chance
-        #self.gain_resistance_chance = gain_resistance_chance
+        self.gain_skeptical_chance = gain_skeptical_chance
 
         self.datacollector = mesa.DataCollector(
             {
                 "Infected": number_infected,
                 "Susceptible": number_susceptible,
-                #"Resistant": number_resistant,
+                "Skeptical": number_skeptical,
             }
         )
 
@@ -102,7 +102,7 @@ class VirusOnNetwork(mesa.Model):
                 self.virus_spread_chance,
                 self.virus_check_frequency,
                 #self.recovery_chance,
-                #self.gain_resistance_chance,
+                self.gain_skeptical_chance,
             )
             self.schedule.add(a)
             # Add the agent to the node
@@ -118,13 +118,13 @@ class VirusOnNetwork(mesa.Model):
         self.running = True
         self.datacollector.collect(self)
 
-    #def resistant_susceptible_ratio(self):
-        #try:
-            #return number_state(self, State.RESISTANT) / number_state(
-               # self, State.SUSCEPTIBLE
-            #)
-        #except ZeroDivisionError:
-            #return math.inf
+    def skeptical_susceptible_ratio(self):
+        try:
+            return number_state(self, State.SKEPTICAL) / number_state(
+                self, State.SUSCEPTIBLE
+            )
+        except ZeroDivisionError:
+            return math.inf
 
     def step(self):
         self.schedule.step()
@@ -144,9 +144,9 @@ class VirusAgent(mesa.Agent):
         initial_state,
         virus_spread_chance,
         virus_check_frequency,
-        trust_network=[],
         #recovery_chance,
-        #gain_resistance_chance,
+        gain_skeptical_chance,
+        trust_network=[],
     ):
         super().__init__(unique_id, model)
 
@@ -155,7 +155,7 @@ class VirusAgent(mesa.Agent):
         self.virus_spread_chance = virus_spread_chance
         self.virus_check_frequency = virus_check_frequency
         #self.recovery_chance = recovery_chance
-        #self.gain_resistance_chance = gain_resistance_chance
+        self.gain_skeptical_chance = gain_skeptical_chance
 
     def try_to_infect_neighbors(self):
         neighbors_nodes = self.model.grid.get_neighbors(self.pos, include_center=False)
@@ -168,16 +168,16 @@ class VirusAgent(mesa.Agent):
             if self.random.random() < self.virus_spread_chance:
                 a.state = State.INFECTED
 
-    #def try_gain_resistance(self):
-        #if self.random.random() < self.gain_resistance_chance:
-            #self.state = State.RESISTANT
+    def try_gain_skeptical(self):
+        if self.random.random() < self.gain_skeptical_chance:
+            self.state = State.SKEPTICAL
 
     #def try_remove_infection(self):
         ## Try to remove
         #if self.random.random() < self.recovery_chance:
             ## Success
             #self.state = State.SUSCEPTIBLE
-            #self.try_gain_resistance()
+            #self.try_gain_skeptical()
         #else:
             ## Failed
             #self.state = State.INFECTED
