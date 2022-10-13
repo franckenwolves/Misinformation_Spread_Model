@@ -1,13 +1,19 @@
 import math
 from enum import Enum
 import networkx as nx
-
+from virus_on_network import server
 import mesa
-
 import csv
+
+
 header = ['number infected', ' number susceptible', ' number skeptical']
-with open('results1.csv', 'w', newline='') as f:
+with open('results_test.csv', 'w', newline='') as f:
     writer = csv.writer(f)
+    writer.writerow({'Batch: test'})
+    writer.writerow({'Total Agents: '})
+    writer.writerow({'Spread Chance: '})
+    writer.writerow({'Node Degree: '})
+    writer.writerow({'Initial Outbreak Size: '})
     writer.writerow(header)
 
 class State(Enum):
@@ -23,30 +29,30 @@ def number_state(model, state):
 def number_infected(model, write_results = True):
     print("Infected: ", number_state(model, State.INFECTED))
     data = [number_state(model, State.INFECTED)]
-    if write_results:    
-        with open('results1.csv', 'a') as f:
+    if write_results:
+        with open('results_test.csv', 'a') as f:
             writer = csv.writer(f)
             for i in data:
                 f.write("\t")
                 f.write(str(data))
     return number_state(model, State.INFECTED)
-    
-    
+
+
 def number_susceptible(model):
     print("Susceptible: ", number_state(model, State.SUSCEPTIBLE))
     data = [number_state(model, State.SUSCEPTIBLE)]
-    with open('results1.csv', 'a') as f:
+    with open('results_test.csv', 'a') as f:
         writer = csv.writer(f)
         for i in data:
             f.write("\t\t")
             f.write(str(data))
     return number_state(model, State.SUSCEPTIBLE)
-    
-    
+
+
 def number_skeptical(model):
     print("Skeptical: ", number_state(model, State.SKEPTICAL))
     data = [number_state(model, State.SKEPTICAL)]
-    with open('results1.csv', 'a') as f:
+    with open('results_test.csv', 'a') as f:
         writer = csv.writer(f)
         for i in data:
             f.write("\t\t")
@@ -108,7 +114,10 @@ class VirusOnNetwork(mesa.Model):
             # Add the agent to the node
             self.grid.place_agent(a, node)
 
-        # Create agent networks
+
+        skeptical_nodes = self.random.sample(list(self.G),(int(num_nodes*self.gain_skeptical_chance)))
+        for a in self.grid.get_cell_list_contents(skeptical_nodes):
+            a.state = State.SKEPTICAL
 
         # Infect some nodes
         infected_nodes = self.random.sample(list(self.G), self.initial_outbreak_size)
@@ -134,6 +143,10 @@ class VirusOnNetwork(mesa.Model):
     def run_model(self, n):
         for i in range(n):
             self.step()
+
+    def try_gain_skeptical(self):
+        if self.random.random() < self.gain_skeptical_chance:
+            self.state = State.SKEPTICAL
 
 
 class VirusAgent(mesa.Agent):
