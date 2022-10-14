@@ -78,6 +78,8 @@ class VirusOnNetwork(mesa.Model):
         gain_skeptical_chance=0.5,
     ):
 
+        self.step_number = 0
+        
         self.num_nodes = num_nodes
         prob = avg_node_degree / self.num_nodes
         self.G = nx.erdos_renyi_graph(n=self.num_nodes, p=prob)
