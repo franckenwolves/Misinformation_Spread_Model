@@ -47,3 +47,5 @@ from mesa.batchrunner import BatchRunner
 #)
 
 #batch_run.run_all()
+pid = process.pid
+kill(pid, signal.SIGKILL)
