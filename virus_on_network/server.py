@@ -11,7 +11,7 @@ def network_portrayal(G):
     # The model ensures there is always 1 agent per node
 
     def node_color(agent):
-        return {State.INFECTED: "#FF0000", State.SUSCEPTIBLE: "#008000"}.get(
+        return {State.INFECTED: "#FF0000", State.SUSCEPTIBLE: "#008000", State.EXPOSED: "#FFFC33"}.get(
             agent.state, "#808080"
         )
 
@@ -56,6 +56,7 @@ chart = mesa.visualization.ChartModule(
     [
         {"Label": "Infected", "Color": "#FF0000"},
         {"Label": "Susceptible", "Color": "#008000"},
+        {"Label": "Exposed", "Color": "#FFFC33"},
         {"Label": "Skeptical", "Color": "#808080"},
     ]
 )
@@ -107,14 +108,14 @@ model_params = {
         0.1,
         description="Frequency the nodes check whether they are infected by " "a virus",
     ),
-    #"recovery_chance": mesa.visualization.Slider(
-        #"Recovery Chance",
-        #0.3,
-        #0.0,
-        #1.0,
-        #0.1,
-        #description="Probability that the virus will be removed",
-    #),
+    "exposed_chance": mesa.visualization.Slider(
+        "Exposed Chance",
+        0.3,
+        0.0,
+        1.0,
+        0.1,
+        description="Probability that the individual will be exposed to the misinformation",
+    ),
     "gain_skeptical_chance": mesa.visualization.Slider(
         "Gain Skeptical Chance",
         0.5,
@@ -132,6 +133,7 @@ server = mesa.visualization.ModularServer(
     "Virus Model",
     model_params,
 )
+
 
 
 
