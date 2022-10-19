@@ -33,7 +33,8 @@ def network_portrayal(G):
         {
             "size": 6,
             "color": node_color(agents[0]),
-            "tooltip": f"id: {agents[0].unique_id}<br>state: {agents[0].state.name}",
+            "tooltip": f"id: {agents[0].unique_id}<br>state: {agents[0].state.name}"
+                       f"<br> skeptical level: {agents[0].skeptical_level}",
         }
         for (_, agents) in G.nodes.data("agent")
     ]
