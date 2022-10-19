@@ -51,7 +51,7 @@ def network_portrayal(G):
     return portrayal
 
 
-network = mesa.visualization.NetworkModule(network_portrayal, 500, 500)
+network = mesa.visualization.NetworkModule(network_portrayal, 750, 750)
 chart = mesa.visualization.ChartModule(
     [
         {"Label": "Infected", "Color": "#FF0000"},
