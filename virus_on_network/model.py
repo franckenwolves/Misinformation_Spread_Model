@@ -132,9 +132,9 @@ class VirusOnNetwork(mesa.Model):
         self.running = True
         self.datacollector.collect(self)
 
-        """skeptical_nodes = self.random.sample(list(self.G),(int(num_nodes*self.gain_skeptical_chance)))
+        skeptical_nodes = self.random.sample(list(self.G), (int(num_nodes*self.gain_skeptical_chance)))
         for a in self.grid.get_cell_list_contents(skeptical_nodes):
-            a.state = State.SKEPTICAL"""
+            a.state = State.SKEPTICAL
         """
         #Expose some nodes
         print(self.exposed_chance)
@@ -165,7 +165,6 @@ class VirusOnNetwork(mesa.Model):
             elif (int(len(skeptics) * .75)) < f <= (int(len(skeptics))):
                 a.skeptical_level = .80
                 f += 1'''
-
 
     def skeptical_susceptible_ratio(self):
         try:
@@ -241,15 +240,13 @@ class VirusAgent(mesa.Agent):
         if self.random.random() < self.gain_skeptical_chance:
             self.state = State.SKEPTICAL
 
-    
-
     def try_check_situation(self):
         if self.random.random() < self.virus_check_frequency:
             # Checking...
             if self.state is State.SUSCEPTIBLE:
                 self.try_to_infect_neighbors()
-        #elif self.state is State.EXPOSED:
-            #self.try_gain_skeptical()
+        elif self.state is State.EXPOSED:
+            self.try_gain_skeptical()
 
     def step(self):
         if self.state is State.INFECTED:
