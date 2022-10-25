@@ -58,7 +58,7 @@ chart = mesa.visualization.ChartModule(
         {"Label": "Infected", "Color": "#FF0000"},
         {"Label": "Susceptible", "Color": "#008000"},
         {"Label": "Exposed", "Color": "#FFFC33"},
-        {"Label": "Skeptical", "Color": "#808080"},
+        #{"Label": "Skeptical", "Color": "#808080"},
     ]
 )
 
@@ -117,6 +117,7 @@ model_params = {
         0.1,
         description="Probability that the individual will be exposed to the misinformation",
     ),
+
     "gain_skeptical_chance": mesa.visualization.Slider(
         "Gain Skeptical Chance",
         0.5,
