@@ -21,21 +21,25 @@ from numpy import arange
 from mesa.batchrunner import BatchRunner
 '''
 fixed_params = {
-    "virus_spread_chance": 0.4,
+
     "virus_check_frequency": 0.4,
     "avg_node_degree": 3,
     "initial_outbreak_size": 1,
+    "exposed_chance": 0.3,
+    #recovery_chance=0.3,
+    "gain_skeptical_chance": 0.5,
+    "skeptical_level": 0.2,
 }
 
 variable_params = {
-    "number of agents": range(100, 100, 10),
-
+    "num_nodes": range(90, 100, 5),
+    "virus_spread_chance": arange(0.0, 1.1, .5)
 }
 
-num_iterations = 1
-num_steps = 30
+num_iterations = 5
+num_steps = 1
 
-batch_run = BatchRunner(server,
+batch_run = BatchRunner(VirusOnNetwork,
                         fixed_parameters=fixed_params,
                         variable_parameters=variable_params,
                         iterations=num_iterations,
@@ -47,5 +51,5 @@ batch_run = BatchRunner(server,
 )
 
 batch_run.run_all()'''
-pid = process.pid
-kill(pid, signal.SIGKILL)
+#pid = process.pid
+#kill(pid, signal.SIGKILL)
