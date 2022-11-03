@@ -29,8 +29,9 @@ def number_infected_1_susceptible_2(model, write_results=True):
         with open('results_test.csv', 'a') as f:
             writer = csv.writer(f)
             for i in data:
-                f.write("\t")
+                f.write("\t\t")
                 f.write(str(data))
+                f.write(",")
     return number_state(model, State.INFECTED_VIRUS_1_SUSCEPTIBLE_VIRUS_2)
 
 
@@ -41,8 +42,9 @@ def number_infected_2_susceptible_1(model, write_results=True):
         with open('results_test.csv', 'a') as f:
             writer = csv.writer(f)
             for i in data:
-                f.write("\t")
+                f.write("\t\t\t")
                 f.write(str(data))
+                f.write(",")
     return number_state(model, State.INFECTED_VIRUS_2_SUSCEPTIBLE_VIRUS_1 )
 
 
@@ -53,8 +55,9 @@ def number_infected_1_exposed_2(model, write_results=True):
         with open('results_test.csv', 'a') as f:
             writer = csv.writer(f)
             for i in data:
-                f.write("\t")
+                f.write("\t\t")
                 f.write(str(data))
+                f.write(",")
     return number_state(model, State.INFECTED_VIRUS_1_EXPOSED_VIRUS_2 )
 
 
@@ -65,67 +68,75 @@ def number_infected_2_exposed_1(model, write_results=True):
         with open('results_test.csv', 'a') as f:
             writer = csv.writer(f)
             for i in data:
-                f.write("\t")
+                f.write("\t\t")
                 f.write(str(data))
+                f.write(",")
     return number_state(model, State.INFECTED_VIRUS_2_EXPOSED_VIRUS_1 )
 
 
-def number_susceptible(model):
+def number_susceptible(model, write_results=True):
     print("Susceptible: ", number_state(model, State.SUSCEPTIBLE))
     data = [number_state(model, State.SUSCEPTIBLE)]
-    with open('results_test.csv', 'a') as f:
-        writer = csv.writer(f)
-        for i in data:
-            f.write("\t\t")
-            f.write(str(data))
+    if write_results:
+        with open('results_test.csv', 'a') as f:
+            writer = csv.writer(f)
+            for i in data:
+                f.write("\t\t")
+                f.write(str(data))
+                f.write(",")
     return number_state(model, State.SUSCEPTIBLE)
 
 
-def number_skeptical(model):
+def number_skeptical(model, write_results=True):
     print("Skeptical: ", number_state(model, State.SKEPTICAL))
     data = [number_state(model, State.SKEPTICAL)]
-    with open('results_test.csv', 'a') as f:
-        writer = csv.writer(f)
-        for i in data:
-            f.write("\t\t")
-            f.write(str(data))
-        
+    if write_results:
+        with open('results_test.csv', 'a') as f:
+            writer = csv.writer(f)
+            for i in data:
+                f.write("\t\t")
+                f.write(str(data))
+                f.write(",")
     return number_state(model, State.SKEPTICAL)
 
    
-def number_exposed_1_susceptible_2(model):
+def number_exposed_1_susceptible_2(model, write_results=True):
     print("Exposed 1 Susceptible 2: ", number_state(model, State.EXPOSED_VIRUS_1_SUSCEPTIBLE_VIRUS_2))
     data = [number_state(model, State.EXPOSED_VIRUS_1_SUSCEPTIBLE_VIRUS_2)]
-    with open('results_test.csv', 'a') as f:
-        writer = csv.writer(f)
-        for i in data:
-            f.write("\t\t")
-            f.write(str(data))
-        f.write("\n")
+    if write_results:
+        with open('results_test.csv', 'a') as f:
+            writer = csv.writer(f)
+            for i in data:
+                f.write("\t\t")
+                f.write(str(data))
+                f.write(",")
     return number_state(model, State.EXPOSED_VIRUS_1_SUSCEPTIBLE_VIRUS_2)
 
 
-def number_exposed_2_susceptible_1(model):
+def number_exposed_2_susceptible_1(model, write_results=True):
     print("Exposed 2 Susceptible 1: ", number_state(model, State.EXPOSED_VIRUS_2_SUSCEPTIBLE_VIRUS_1))
     data = [number_state(model, State.EXPOSED_VIRUS_2_SUSCEPTIBLE_VIRUS_1)]
-    with open('results_test.csv', 'a') as f:
-        writer = csv.writer(f)
-        for i in data:
-            f.write("\t\t")
-            f.write(str(data))
-        f.write("\n")
+    if write_results:
+        with open('results_test.csv', 'a') as f:
+            writer = csv.writer(f)
+            for i in data:
+                f.write("\t\t")
+                f.write(str(data))
+                f.write(",")
     return number_state(model, State.EXPOSED_VIRUS_2_SUSCEPTIBLE_VIRUS_1)
 
 
-def number_exposed_both(model):
+def number_exposed_both(model, write_results=True):
     print("Exposed Both: ", number_state(model, State.EXPOSED_BOTH))
     data = [number_state(model, State.EXPOSED_BOTH)]
-    with open('results_test.csv', 'a') as f:
-        writer = csv.writer(f)
-        for i in data:
-            f.write("\t\t")
-            f.write(str(data))
-        f.write("\n")
+    if write_results:
+        with open('results_test.csv', 'a') as f:
+            writer = csv.writer(f)
+            for i in data:
+                f.write("\t\t")
+                f.write(str(data))
+                f.write(",")
+            f.write("\n")
     return number_state(model, State.EXPOSED_BOTH)
 
 
@@ -148,7 +159,7 @@ class VirusOnNetwork(mesa.Model):
         skeptical_level_virus_1=0.2,
         skeptical_level_virus_2=0.2,
     ):
-        header = ['number infected', ' number susceptible', ' number skeptical', ' number exposed']
+        header = ['\tinfected v1 sus v2', ' infected v2 sus v1', ' infected v1 exp v2', ' infected v2 exp v1', ' susceptible', ' skeptical', ' exposed v1 sus v2', ' exposed v2 sus v1', ' exposed to both']
         with open('results_test.csv', 'w', newline='') as f:
             writer = csv.writer(f)
             writer.writerow({'Batch: test'})
@@ -194,15 +205,16 @@ class VirusOnNetwork(mesa.Model):
                 #"Skeptical": number_skeptical,
                 #"Exposed": number_exposed,
 
-                'Susceptible': number_susceptible,
-                'Exposed 1 and Susceptible 2': number_exposed_1_susceptible_2,
-                'Exposed 2 and Susceptible 1': number_exposed_2_susceptible_1,
-                'Exposed Both': number_exposed_both,
+                
                 'Infected 1 Susceptible 2': number_infected_1_susceptible_2,
                 'Infected 2 Susceptible 1': number_infected_2_susceptible_1,
                 'Infected 1 Exposed 2': number_infected_1_exposed_2,
                 'Infected 2 Exposed 1': number_infected_2_exposed_1,
+                'Susceptible': number_susceptible,
                 'Skeptical': number_skeptical,
+                'Exposed 1 and Susceptible 2': number_exposed_1_susceptible_2,
+                'Exposed 2 and Susceptible 1': number_exposed_2_susceptible_1,
+                'Exposed Both': number_exposed_both,
             }
         )
 
@@ -293,8 +305,10 @@ class VirusOnNetwork(mesa.Model):
 
     def step(self):
         with open('results_test.csv', 'a') as f:
+            f.write("\n")
             f.write(str(self.step_number +1))
             f.write(",")
+
         self.schedule.step()
         # collect data
         self.datacollector.collect(self)

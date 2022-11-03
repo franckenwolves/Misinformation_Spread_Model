@@ -1,3 +1,8 @@
+import sys
+sys.path.append('C:\\Users\\frank\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.10_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python310\\site-packages\\')
+
+
+
 from virus_on_network.server import server
 import sys
 import socketserver
