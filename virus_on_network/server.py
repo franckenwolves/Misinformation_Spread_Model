@@ -94,6 +94,14 @@ model_params = {
     "avg_node_degree": mesa.visualization.Slider(
         "Avg Node Degree", 3, 3, 8, 1, description="Avg Node Degree"
     ),
+    "initial_outbreak_size_virus_0": mesa.visualization.Slider(
+        "Initial Outbreak Size Virus 0",
+        1,
+        1,
+        10,
+        1,
+        description="Initial Outbreak Size of virus 0",
+    ),
     "initial_outbreak_size_virus_1": mesa.visualization.Slider(
         "Initial Outbreak Size Virus 1",
         1,
@@ -102,13 +110,13 @@ model_params = {
         1,
         description="Initial Outbreak Size of virus 1",
     ),
-    "initial_outbreak_size_virus_2": mesa.visualization.Slider(
-        "Initial Outbreak Size Virus 2",
-        1,
-        1,
-        10,
-        1,
-        description="Initial Outbreak Size of virus 2",
+    "virus_0_spread_chance": mesa.visualization.Slider(
+        "Virus 0 Spread Chance",
+        0.4,
+        0.0,
+        1.0,
+        0.1,
+        description="Probability that susceptible neighbor will be infected with virus 0",
     ),
     "virus_1_spread_chance": mesa.visualization.Slider(
         "Virus 1 Spread Chance",
@@ -118,14 +126,6 @@ model_params = {
         0.1,
         description="Probability that susceptible neighbor will be infected with virus 1",
     ),
-    "virus_2_spread_chance": mesa.visualization.Slider(
-        "Virus 2 Spread Chance",
-        0.4,
-        0.0,
-        1.0,
-        0.1,
-        description="Probability that susceptible neighbor will be infected with virus 2",
-    ),
     "virus_check_frequency": mesa.visualization.Slider(
         "Virus Check Frequency",
         0.4,
@@ -134,16 +134,16 @@ model_params = {
         0.1,
         description="Frequency the nodes check whether they are infected by " "a virus",
     ),
-    "exposed_chance_virus_1": mesa.visualization.Slider(
-        "Exposed Chance Virus 1",
+    "exposed_chance_virus_0": mesa.visualization.Slider(
+        "Exposed Chance Virus 0",
         0.3,
         0.0,
         1.0,
         0.1,
         description="Probability that the individual will be exposed to this virus",
     ),
-    "exposed_chance_virus_2": mesa.visualization.Slider(
-        "Exposed Chance Virus 2",
+    "exposed_chance_virus_1": mesa.visualization.Slider(
+        "Exposed Chance Virus 1",
         0.3,
         0.0,
         1.0,
