@@ -4,41 +4,41 @@ import mesa
 import socket
 import errno
 
-from .model import VirusOnNetwork, State#, number_infected
+from .model import VirusOnNetwork#, State#, number_infected
 
 
 def network_portrayal(G):
     # The model ensures there is always 1 agent per node
 
     def node_color(agent):
-        return {State.SUSCEPTIBLE: "#008000", State.EXPOSED_VIRUS_1_SUSCEPTIBLE_VIRUS_2: "#FFFC33", State.EXPOSED_VIRUS_2_SUSCEPTIBLE_VIRUS_1: "#DF5FED", State.EXPOSED_BOTH: "#4A2804",
-                State.INFECTED_VIRUS_1_SUSCEPTIBLE_VIRUS_2: "#FF0000", State.INFECTED_VIRUS_2_SUSCEPTIBLE_VIRUS_1: "#0D1FDE",
-                State.INFECTED_VIRUS_2_EXPOSED_VIRUS_1: "#720F7D", State.INFECTED_VIRUS_1_EXPOSED_VIRUS_2: "#E66C20"
-                }.get(
-            agent.state, "#808080"
-        )
+        return {agent.misinformation[0]['exposed']=='no' and agent.misinformation[1]['exposed']=='no': "#008000", agent.misinformation[0]['exposed']=='yes' and agent.misinformation[1]['exposed']=='no': "#FFFC33",
+                agent.misinformation[0]['exposed']=='no' and agent.misinformation[1]['exposed']=='yes': "#DF5FED", agent.misinformation[0]['exposed']=='yes' and agent.misinformation[1]['exposed']=='yes': "#4A2804",
+                agent.misinformation[0]['infected']=='yes' and agent.misinformation[1]['exposed']=='no': "#FF0000", agent.misinformation[0]['exposed']=='no' and agent.misinformation[1]['infected']=='yes': "#0D1FDE",
+                agent.misinformation[0]['exposed']=='yes' and agent.misinformation[1]['infected']=='no': "#720F7D", agent.misinformation[0]['infected']=='yes' and agent.misinformation[1]['exposed']=='yes': "#E66C20"
+                }
+
 
     def edge_color(agent1, agent2):
-        if State.SKEPTICAL in (agent1.state, agent2.state):
+        if agent1.misinformation[0]['skeptical_level'] == 1 and agent1.misinformation[1]['skeptical_level'] == 1 and agent2.misinformation[0]['skeptical_level'] == 1 and agent2.misinformation[1]['skeptical_level'] == 1:
             return "#000000"
         return "#e8e8e8"
 
     def edge_width(agent1, agent2):
-        if State.SKEPTICAL in (agent1.state, agent2.state):
+        if agent1.misinformation[0]['skeptical_level'] == 1 and agent1.misinformation[1]['skeptical_level'] == 1 and agent2.misinformation[0]['skeptical_level'] == 1 and agent2.misinformation[1]['skeptical_level'] == 1:
             return 3
         return 2
 
     def get_agents(source, target):
-        return G.nodes[source]["agent"][0], G.nodes[target]["agent"][0]
+        return G.nodes[source]["agent"][0], G.nodes[target]["agent"][0],
 
     portrayal = dict()
     portrayal["nodes"] = [
         {
             "size": 6,
             "color": node_color(agents[0]),
-            "tooltip": f"id: {agents[0].unique_id}<br>state: {agents[0].state.name}"
-                       f"<br> skeptical level virus 1: {agents[0].skeptical_level_virus_1}"
-                       f"<br> skeptical level virus 2: {agents[0].skeptical_level_virus_2}",
+            "tooltip": f"id: {agents[0].unique_id}<br>state: {agents[0].misinformation}"
+                       f"<br> skeptical level virus 1: {agents[0].misinformation[0]['skeptical_level']}"
+                       f"<br> skeptical level virus 2: {agents[0].misinformation[0]['skeptical_level']}",
         }
         for (_, agents) in G.nodes.data("agent")
     ]
