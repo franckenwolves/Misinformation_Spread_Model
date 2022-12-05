@@ -5,6 +5,7 @@ from virus_on_network import server
 import mesa
 import csv
 import copy
+import run
 
 
 '''class State(Enum):
@@ -129,6 +130,7 @@ def number_exposed_both(model):
         f.write("\n")
     return number_state(model, State.EXPOSED_BOTH)'''
 
+j = run.j
 
 class VirusOnNetwork(mesa.Model):
     """A virus model with some number of agents"""
@@ -149,7 +151,7 @@ class VirusOnNetwork(mesa.Model):
         skeptical_level_virus_0=0,
         skeptical_level_virus_1=0,
     ):
-        self.misinformation = {0: {'infected': 'no', 'exposed': 'no', 'initial_outbreak_size': 1, 'spread_chance': 1, 'exposed_chance': 1, 'skeptical_level': 0, 'opposite_virus': 1, 'infected_list': []},
+        self.misinformation = {0: {'infected': 'no', 'exposed': 'no', 'initial_outbreak_size': 1, 'spread_chance': 1, 'exposed_chance': 1, 'skeptical_level': 0, 'opposite_virus': 1, 'infected_list': [], 'num_virus': 1},
                                1: {'infected': 'no', 'exposed': 'no', 'initial_outbreak_size': 1, 'spread_chance': 1, 'exposed_chance': 1, 'skeptical_level': 0, 'opposite_virus': 0}}
 
         #print("debug: ", self.misinformation)
@@ -186,6 +188,7 @@ class VirusOnNetwork(mesa.Model):
         self.misinformation[1]['initial_outbreak_size'] = (
             initial_outbreak_size_virus_1 if initial_outbreak_size_virus_1 <= num_nodes else num_nodes
         )
+        self.misinformation[0]['num_virus'] = j
         self.virus_0_spread_chance = virus_0_spread_chance
         self.misinformation[0]['spread_chance'] = virus_0_spread_chance
         self.virus_1_spread_chance = virus_1_spread_chance
@@ -322,12 +325,13 @@ class VirusAgent(mesa.Agent):
     ):
         super().__init__(unique_id, model)
         #self.misinformation = misinformation
-        self.misinformation = {0: {'infected': 'no', 'exposed': 'no', 'initial_outbreak_size': 2, 'spread_chance': 4, 'exposed_chance': 3, 'skeptical_level': 2, 'opposite_virus': 1, 'infected_list': []},
+        self.misinformation = {0: {'infected': 'no', 'exposed': 'no', 'initial_outbreak_size': 2, 'spread_chance': 4, 'exposed_chance': 3, 'skeptical_level': 2, 'opposite_virus': 1, 'infected_list': [], 'num_virus': 0},
                                1: {'infected': 'no', 'exposed': 'no', 'initial_outbreak_size': 2, 'spread_chance': 4, 'exposed_chance': 3, 'skeptical_level': 2, 'opposite_virus': 0}}
         #self.state = initial_state
         self.virus = virus
         self.virus_check_frequency = virus_check_frequency
         self.gain_skeptical_chance = gain_skeptical_chance
+        self.misinformation[0]['num_virus'] = j
         self.misinformation[0]['initial_outbreak_size'] = initial_outbreak_size_virus_0
         self.misinformation[1]['initial_outbreak_size'] = initial_outbreak_size_virus_1
         self.misinformation[0]['spread_chance'] = virus_0_spread_chance
@@ -384,7 +388,9 @@ class VirusAgent(mesa.Agent):
 
     def step(self):
         for i in self.misinformation:
-            if self.misinformation[i]['infected'] == 'yes':
-                self.try_exposing(i)
+            if i < self.misinformation[0]['num_virus']:
+                if self.misinformation[i]['infected'] == 'yes':
+                    self.try_exposing(i)
         for i in self.misinformation:
-            self.try_check_situation(i)
+            if i < self.misinformation[0]['num_virus']:
+                self.try_check_situation(i)
