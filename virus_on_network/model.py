@@ -5,10 +5,27 @@ from virus_on_network import server
 import mesa
 import csv
 import copy
+import time
+from datetime import date
+import pandas as pd
+
+t = time.localtime()
+current_time = time.strftime("%H:%M:%S", t)
+
+today = date.today()
+
+
+'''def create_csv():
+    filename = str(today) + str(current_time)
+    new_csv = (str(filename + '.csv'))
+    with open(new_csv, 'w') as f:
+        f.write(",")'''
 
 
 class VirusOnNetwork(mesa.Model):
     """A virus model with some number of agents"""
+
+    create_csv()
 
     def __init__(
         self,
@@ -36,11 +53,11 @@ class VirusOnNetwork(mesa.Model):
         skeptical_level_virus_2=0,
     ):
         self.misinformation = {0: {'infected': 'no', 'exposed': 'no', 'initial_outbreak_size': 1, 'spread_chance': 1, 'exposed_chance': 1, 'skeptical_level': 0, 'virus_check_frequency': 0, 'gain_skeptical_chance': 1, 'opposite_virus': 1,
-                                   'infected_by': [], 'infected_list': [], 'num_virus': 1},
+                                   'infected_list': [], 'num_virus': 1},
                                1: {'infected': 'no', 'exposed': 'no', 'initial_outbreak_size': 1, 'spread_chance': 1, 'exposed_chance': 1, 'skeptical_level': 0, 'virus_check_frequency': 0, 'gain_skeptical_chance': 1, 'opposite_virus': 0,
-                                   'infected_by': []},
+                                   },
                                2: {'infected': 'no', 'exposed': 'no', 'initial_outbreak_size': 1, 'spread_chance': 1, 'exposed_chance': 1, 'skeptical_level': 0, 'virus_check_frequency': 0, 'gain_skeptical_chance': 1, 'opposite_virus': None,
-                                   'infected_by': []}}
+                                   }}
 
         #print("debug: ", self.misinformation)
         #header = ['number infected', ' number susceptible', ' number skeptical', ' number exposed']
@@ -170,6 +187,7 @@ class VirusOnNetwork(mesa.Model):
                 infected_nodes = self.random.sample(list(self.G), self.misinformation[i]['initial_outbreak_size'])
                 #print(infected_nodes)
                 for a in self.grid.get_cell_list_contents(infected_nodes):
+                    #print(a.unique_id)
                     #print(a.misinformation)
                     a.misinformation[i]['infected'] = 'yes'
                     a.misinformation[i]['exposed'] = 'yes'
@@ -198,15 +216,38 @@ class VirusOnNetwork(mesa.Model):
                         a.misinformation[i]['skeptical_level'] = .80
                         f += 1
 
+    def infected_nodes(self, i):
+        infected_nodes = {0: [], 1: [], 2: []}
+        for a in self.grid.get_cell_list_contents(self.G.nodes):
+            if a.misinformation[i]['infected'] == 'yes':
+                infected_nodes[i].append(a.unique_id)
+        return infected_nodes[i]
+
+    def exposed_nodes(self, i):
+        exposed_nodes = {0: [], 1: [], 2: []}
+        for a in self.grid.get_cell_list_contents(self.G.nodes):
+            if a.misinformation[i]['exposed'] == 'yes':
+                exposed_nodes[i].append(a.unique_id)
+        return exposed_nodes[i]
+
     def step(self):
-        with open('results_test.csv', 'a') as f:
+        with open('results_test.csv', 'w') as f:
             f.write(str(self.step_number + 1))
             f.write(",")
         self.schedule.step()
         # collect data
         self.datacollector.collect(self)
         self.step_number = self.step_number + 1
-        print(self.G.edges)
+        #print(self.G.nodes)
+        #print(self.G.edges)
+        #print(today, current_time)
+        for i in self.misinformation:
+            if i < self.misinformation[0]['num_virus']:
+                print("List of infected nodes for virus", i, ": ", self.infected_nodes(i))
+                print("List of exposed nodes for virus", i, ": ", self.exposed_nodes(i))
+                #self.infected_nodes(i)
+                #self.exposed_nodes(i)
+
 
     def run_model(self, n):
         for i in range(n):
@@ -243,11 +284,11 @@ class VirusAgent(mesa.Agent):
 
         super().__init__(unique_id, model)
         self.misinformation = {0: {'infected': 'no', 'exposed': 'no', 'initial_outbreak_size': 1, 'spread_chance': 1, 'exposed_chance': 1, 'skeptical_level': 0, 'virus_check_frequency': 0, 'gain_skeptical_chance': 1, 'opposite_virus': 1,
-                                   'infected_by': [], 'infected_list': [], 'num_virus': 1},
+                                   'infected_list': [], 'num_virus': 1},
                                1: {'infected': 'no', 'exposed': 'no', 'initial_outbreak_size': 1, 'spread_chance': 1, 'exposed_chance': 1, 'skeptical_level': 0, 'virus_check_frequency': 0, 'gain_skeptical_chance': 1, 'opposite_virus': 0,
-                                   'infected_by': []},
+                                   },
                                2: {'infected': 'no', 'exposed': 'no', 'initial_outbreak_size': 1, 'spread_chance': 1, 'exposed_chance': 1, 'skeptical_level': 0, 'virus_check_frequency': 0, 'gain_skeptical_chance': 1, 'opposite_virus': None,
-                                   'infected_by': []}}
+                                   }}
 
         self.virus = virus
         self.misinformation[0]['num_virus'] = j
@@ -293,7 +334,7 @@ class VirusAgent(mesa.Agent):
             if self.random.random() < self.misinformation[i]['spread_chance']:
                 if self.random.random() > self.misinformation[i]['skeptical_level']:
                     a.misinformation[i]['infected'] = 'yes'
-                    a.misinformation[0]['infected_list'].append(i)
+                    a.misinformation[0]['infected_list'].append(("infected by node:", self.pos, "with virus", i))
                     if a.misinformation[i]['opposite_virus'] is not None:
                         a.misinformation[a.misinformation[i]['opposite_virus']]['skeptical_level'] = .90
                         if a.misinformation[a.misinformation[i]['opposite_virus']]['infected'] == 'yes':
@@ -315,6 +356,7 @@ class VirusAgent(mesa.Agent):
             self.try_gain_skeptical(i)
 
     def step(self):
+
         for i in self.misinformation:
             if i < self.misinformation[0]['num_virus']:
                 if self.misinformation[i]['infected'] == 'yes':
