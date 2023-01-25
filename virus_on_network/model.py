@@ -14,18 +14,18 @@ current_time = time.strftime("%H:%M:%S", t)
 
 today = date.today()
 
-
-'''def create_csv():
+"""
+def create_csv():
     filename = str(today) + str(current_time)
     new_csv = (str(filename + '.csv'))
     with open(new_csv, 'w') as f:
-        f.write(",")'''
-
+        f.write(",")
+"""
 
 class VirusOnNetwork(mesa.Model):
     """A virus model with some number of agents"""
 
-    create_csv()
+    #create_csv()
 
     def __init__(
         self,
@@ -181,6 +181,10 @@ class VirusOnNetwork(mesa.Model):
         self.running = True
         self.datacollector.collect(self)
 
+        print(self.G.edges)
+        with open('edgelist.csv', 'w') as f:
+            f.write(str(self.G.edges))
+
         # Infect some nodes
         for i in self.misinformation:
             if i < self.misinformation[0]['num_virus']:
@@ -229,25 +233,49 @@ class VirusOnNetwork(mesa.Model):
             if a.misinformation[i]['exposed'] == 'yes':
                 exposed_nodes[i].append(a.unique_id)
         return exposed_nodes[i]
+    
+    with open('infected.csv', 'w') as f:
+        with open('exposed.csv', 'w') as e:
+            
+            def step(self):
+                self.schedule.step()
+                # collect data
+                self.datacollector.collect(self)
+                self.step_number = self.step_number + 1
+                #print(self.G.nodes)
+                #print(self.G.edges)
+                #print(today, current_time)
+                
+            
 
-    def step(self):
-        with open('results_test.csv', 'w') as f:
-            f.write(str(self.step_number + 1))
-            f.write(",")
-        self.schedule.step()
-        # collect data
-        self.datacollector.collect(self)
-        self.step_number = self.step_number + 1
-        #print(self.G.nodes)
-        #print(self.G.edges)
-        #print(today, current_time)
-        for i in self.misinformation:
-            if i < self.misinformation[0]['num_virus']:
-                print("List of infected nodes for virus", i, ": ", self.infected_nodes(i))
-                print("List of exposed nodes for virus", i, ": ", self.exposed_nodes(i))
-                #self.infected_nodes(i)
-                #self.exposed_nodes(i)
-
+                for i in self.misinformation:
+                    if i < self.misinformation[0]['num_virus']:
+                        print("List of infected nodes for virus", i, ": ", self.infected_nodes(i))
+                            
+                        with open('infected.csv', 'a') as f:
+                            
+                            f.write(str(self.step_number))
+                            f.write(',')
+                            f.write(str(i))
+                            f.write(':') 
+                            f.write(str(self.infected_nodes(i)))
+                            f.write('\n')
+            
+            
+                
+                for i in self.misinformation:
+                    if i < self.misinformation[0]['num_virus']:
+                        print("List of exposed nodes for virus", i, ": ", self.exposed_nodes(i))
+                            
+                        with open('exposed.csv', 'a') as e:
+                                
+                            e.write(str(self.step_number))
+                            e.write(',')
+                            e.write(str(i))
+                            e.write(':') 
+                            e.write(str(self.exposed_nodes(i)))
+                            e.write('\n')           
+                            
 
     def run_model(self, n):
         for i in range(n):
@@ -356,6 +384,16 @@ class VirusAgent(mesa.Agent):
             self.try_gain_skeptical(i)
 
     def step(self):
+
+        for i in self.misinformation:
+            if i < self.misinformation[0]['num_virus']:
+                if self.misinformation[i]['infected'] == 'yes':
+                    self.try_exposing(i)
+        for i in self.misinformation:
+            if i < self.misinformation[0]['num_virus']:
+                self.try_check_situation(i)
+
+    def step2(self):
 
         for i in self.misinformation:
             if i < self.misinformation[0]['num_virus']:
