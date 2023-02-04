@@ -22,35 +22,43 @@ def create_csv():
         f.write(",")
 """
 
+
+def batch_csv():
+    filename = str(today)
+    new_batch_csv = (str(filename + '.csv'))
+    with open(new_batch_csv, 'w') as f:
+        f.write(",")
+
+
 class VirusOnNetwork(mesa.Model):
     """A virus model with some number of agents"""
 
-    #create_csv()
+    # create_csv()
 
     def __init__(
-        self,
-        j=0,
-        virus=0,
-        num_nodes=10,
-        avg_node_degree=3,
-        initial_outbreak_size_virus_0=1,
-        initial_outbreak_size_virus_1=1,
-        initial_outbreak_size_virus_2=1,
-        virus_0_spread_chance=1,
-        virus_1_spread_chance=1,
-        virus_2_spread_chance=1,
-        virus_0_check_frequency=0.4,
-        virus_1_check_frequency=0.4,
-        virus_2_check_frequency=0.4,
-        exposed_chance_virus_0=1,
-        exposed_chance_virus_1=1,
-        exposed_chance_virus_2=1,
-        gain_skeptical_chance_virus_0=0.5,
-        gain_skeptical_chance_virus_1=0.5,
-        gain_skeptical_chance_virus_2=0.5,
-        skeptical_level_virus_0=0,
-        skeptical_level_virus_1=0,
-        skeptical_level_virus_2=0,
+            self,
+            j=0,
+            virus=0,
+            num_nodes=10,
+            avg_node_degree=3,
+            initial_outbreak_size_virus_0=1,
+            initial_outbreak_size_virus_1=1,
+            initial_outbreak_size_virus_2=1,
+            virus_0_spread_chance=1,
+            virus_1_spread_chance=1,
+            virus_2_spread_chance=1,
+            virus_0_check_frequency=0.4,
+            virus_1_check_frequency=0.4,
+            virus_2_check_frequency=0.4,
+            exposed_chance_virus_0=1,
+            exposed_chance_virus_1=1,
+            exposed_chance_virus_2=1,
+            gain_skeptical_chance_virus_0=0.5,
+            gain_skeptical_chance_virus_1=0.5,
+            gain_skeptical_chance_virus_2=0.5,
+            skeptical_level_virus_0=0,
+            skeptical_level_virus_1=0,
+            skeptical_level_virus_2=0,
     ):
         self.misinformation = {0: {'infected': 'no', 'exposed': 'no', 'initial_outbreak_size': 1, 'spread_chance': 1, 'exposed_chance': 1, 'skeptical_level': 0, 'virus_check_frequency': 0, 'gain_skeptical_chance': 1, 'opposite_virus': 1,
                                    'infected_list': [], 'num_virus': 1},
@@ -59,24 +67,24 @@ class VirusOnNetwork(mesa.Model):
                                2: {'infected': 'no', 'exposed': 'no', 'initial_outbreak_size': 1, 'spread_chance': 1, 'exposed_chance': 1, 'skeptical_level': 0, 'virus_check_frequency': 0, 'gain_skeptical_chance': 1, 'opposite_virus': None,
                                    }}
 
-        #print("debug: ", self.misinformation)
-        #header = ['number infected', ' number susceptible', ' number skeptical', ' number exposed']
-        #with open('results_test.csv', 'w', newline='') as f:
-            #writer = csv.writer(f)
-            #writer.writerow({'Batch: test'})
-            #writer.writerow({'Total Agents: ', num_nodes})
-            #writer.writerow({'Spread Chance Virus 1: ', virus_1_spread_chance})
-            #writer.writerow({'Spread Chance Virus 2: ', virus_2_spread_chance})
-            #writer.writerow({'Exposed Chance Virus 1: ', exposed_chance_virus_1})
-            #writer.writerow({'Exposed Chance Virus 2: ', exposed_chance_virus_2})
-            #writer.writerow({'Node Degree: ', avg_node_degree})
-            #writer.writerow({'Initial Outbreak Size Virus 1: ', initial_outbreak_size_virus_1})
-            #writer.writerow({'Initial Outbreak Size Virus 2: ', initial_outbreak_size_virus_2})
-            #print("Number of Agents: ", num_nodes)
-            #print("Skeptical_level: ", skeptical_level)
-            #print("virus spread chance: ", virus_spread_chance)
-            #print("exposed chance: ", exposed_chance)
-            #writer.writerow(header)
+        # print("debug: ", self.misinformation)
+        # header = ['number infected', ' number susceptible', ' number skeptical', ' number exposed']
+        # with open('results_test.csv', 'w', newline='') as f:
+        # writer = csv.writer(f)
+        # writer.writerow({'Batch: test'})
+        # writer.writerow({'Total Agents: ', num_nodes})
+        # writer.writerow({'Spread Chance Virus 1: ', virus_1_spread_chance})
+        # writer.writerow({'Spread Chance Virus 2: ', virus_2_spread_chance})
+        # writer.writerow({'Exposed Chance Virus 1: ', exposed_chance_virus_1})
+        # writer.writerow({'Exposed Chance Virus 2: ', exposed_chance_virus_2})
+        # writer.writerow({'Node Degree: ', avg_node_degree})
+        # writer.writerow({'Initial Outbreak Size Virus 1: ', initial_outbreak_size_virus_1})
+        # writer.writerow({'Initial Outbreak Size Virus 2: ', initial_outbreak_size_virus_2})
+        # print("Number of Agents: ", num_nodes)
+        # print("Skeptical_level: ", skeptical_level)
+        # print("virus spread chance: ", virus_spread_chance)
+        # print("exposed chance: ", exposed_chance)
+        # writer.writerow(header)
 
         self.step_number = 0
         self.num_nodes = num_nodes
@@ -131,23 +139,22 @@ class VirusOnNetwork(mesa.Model):
         self.misinformation[2]['skeptical_level'] = skeptical_level_virus_2
         self.datacollector = mesa.DataCollector(
             {
-                #"Infected": number_infected,
-                #"Susceptible": number_susceptible,
-                #"Skeptical": number_skeptical,
-                #"Exposed": number_exposed,
+                # "Infected": number_infected,
+                # "Susceptible": number_susceptible,
+                # "Skeptical": number_skeptical,
+                # "Exposed": number_exposed,
 
-                #'Susceptible': (self.misinformation[0]['exposed']=='no' and self.misinformation[1]['exposed']=='no'),
-                #'Exposed 0 and Susceptible 1': (self.misinformation[0]['exposed']=='yes' and self.misinformation[1]['exposed'])=='no',
-                #'Exposed 1 and Susceptible 0': (self.misinformation[0]['exposed']=='no' and self.misinformation[1]['exposed'])=='yes',
-                #'Exposed Both': (self.misinformation[0]['exposed']=='yes' and self.misinformation[1]['exposed'])=='yes',
-                #'Infected 0 Susceptible 1': (self.misinformation[0]['infected']=='yes' and self.misinformation[1]['exposed'])=='no',
-                #'Infected 1 Susceptible 0': (self.misinformation[0]['exposed']=='no' and self.misinformation[1]['infected'])=='yes',
-                #'Infected 0 Exposed 1': (self.misinformation[0]['infected']=='yes' and self.misinformation[1]['exposed'])=='yes',
-                #'Infected 1 Exposed 0': (self.misinformation[0]['exposed']=='yes' and self.misinformation[1]['infected'])=='yes',
-                #Skeptical': number_skeptical,
+                # 'Susceptible': (self.misinformation[0]['exposed']=='no' and self.misinformation[1]['exposed']=='no'),
+                # 'Exposed 0 and Susceptible 1': (self.misinformation[0]['exposed']=='yes' and self.misinformation[1]['exposed'])=='no',
+                # 'Exposed 1 and Susceptible 0': (self.misinformation[0]['exposed']=='no' and self.misinformation[1]['exposed'])=='yes',
+                # 'Exposed Both': (self.misinformation[0]['exposed']=='yes' and self.misinformation[1]['exposed'])=='yes',
+                # 'Infected 0 Susceptible 1': (self.misinformation[0]['infected']=='yes' and self.misinformation[1]['exposed'])=='no',
+                # 'Infected 1 Susceptible 0': (self.misinformation[0]['exposed']=='no' and self.misinformation[1]['infected'])=='yes',
+                # 'Infected 0 Exposed 1': (self.misinformation[0]['infected']=='yes' and self.misinformation[1]['exposed'])=='yes',
+                # 'Infected 1 Exposed 0': (self.misinformation[0]['exposed']=='yes' and self.misinformation[1]['infected'])=='yes',
+                # Skeptical': number_skeptical,
             }
         )
-
 
         # Create agents
         for i, node in enumerate(self.G.nodes()):
@@ -181,22 +188,31 @@ class VirusOnNetwork(mesa.Model):
         self.running = True
         self.datacollector.collect(self)
 
-        print(self.G.edges)
+        #print(self.G.edges)
         with open('edgelist.csv', 'w') as f:
-            f.write(str(self.G.edges))
+            for i in self.G.edges:
+                #print(i)
+                f.write('|')
+                g=0
+                for u in i:
+                    g=g+1
+                    #print(u)
+                    f.write(str(u))
+                    if (g%2) != 0:
+                        f.write(',')
 
         # Infect some nodes
         for i in self.misinformation:
             if i < self.misinformation[0]['num_virus']:
                 infected_nodes = self.random.sample(list(self.G), self.misinformation[i]['initial_outbreak_size'])
-                #print(infected_nodes)
+                # print(infected_nodes)
                 for a in self.grid.get_cell_list_contents(infected_nodes):
-                    #print(a.unique_id)
-                    #print(a.misinformation)
+                    # print(a.unique_id)
+                    # print(a.misinformation)
                     a.misinformation[i]['infected'] = 'yes'
                     a.misinformation[i]['exposed'] = 'yes'
                     a.misinformation[0]['infected_list'].append(i)
-                    #print(a.misinformation)
+                    # print(a.misinformation)
                     if a.misinformation[i]['opposite_virus'] is not None:
                         a.misinformation[a.misinformation[i]['opposite_virus']]['skeptical_level'] = .90
                         a.misinformation[a.misinformation[i]['opposite_virus']]['infected'] = 'no'
@@ -207,7 +223,7 @@ class VirusOnNetwork(mesa.Model):
                 skeptics = self.random.sample(list(self.G), self.num_nodes)
                 f = 0
                 for a in self.grid.get_cell_list_contents(skeptics):
-                    if f <= (int(len(skeptics)*.25)):
+                    if f <= (int(len(skeptics) * .25)):
                         a.misinformation[i]['skeptical_level'] = .20
                         f += 1
                     elif (int(len(skeptics) * .25)) < f <= (int(len(skeptics) * .50)):
@@ -233,49 +249,59 @@ class VirusOnNetwork(mesa.Model):
             if a.misinformation[i]['exposed'] == 'yes':
                 exposed_nodes[i].append(a.unique_id)
         return exposed_nodes[i]
-    
+
     with open('infected.csv', 'w') as f:
         with open('exposed.csv', 'w') as e:
-            
-            def step(self):
-                self.schedule.step()
-                # collect data
-                self.datacollector.collect(self)
-                self.step_number = self.step_number + 1
-                #print(self.G.nodes)
-                #print(self.G.edges)
-                #print(today, current_time)
-                
-            
+            with open('dictionary.csv', 'w') as d:
 
-                for i in self.misinformation:
-                    if i < self.misinformation[0]['num_virus']:
-                        print("List of infected nodes for virus", i, ": ", self.infected_nodes(i))
-                            
-                        with open('infected.csv', 'a') as f:
-                            
-                            f.write(str(self.step_number))
-                            f.write(',')
-                            f.write(str(i))
-                            f.write(':') 
-                            f.write(str(self.infected_nodes(i)))
-                            f.write('\n')
-            
-            
-                
-                for i in self.misinformation:
-                    if i < self.misinformation[0]['num_virus']:
-                        print("List of exposed nodes for virus", i, ": ", self.exposed_nodes(i))
-                            
-                        with open('exposed.csv', 'a') as e:
-                                
-                            e.write(str(self.step_number))
-                            e.write(',')
-                            e.write(str(i))
-                            e.write(':') 
-                            e.write(str(self.exposed_nodes(i)))
-                            e.write('\n')           
-                            
+                def step(self):
+                    self.schedule.step()
+                    # collect data
+                    self.datacollector.collect(self)
+                    self.step_number = self.step_number + 1
+                    #print(self.G.nodes)
+                    #print(self.misinformation)
+                    # print(self.G.edges)
+                    # print(today, current_time)
+                    with open('dictionary.csv', 'a') as d:
+                        d.write(str(self.step_number))
+                        d.write('\n')
+                    for i in self.grid.get_cell_list_contents(self.G.nodes):
+                        print(i.unique_id)
+                        print(i.misinformation)
+                        with open('dictionary.csv', 'a') as d:
+                            d.write('|')
+                            d.write(str(i.unique_id))
+                            d.write(str(i.misinformation))
+                            d.write('|')
+                            d.write('\n')
+
+                        #with open('dictionary.csv', 'w') as d:
+                            #d.write()
+
+                    for i in self.misinformation:
+                        if i < self.misinformation[0]['num_virus']:
+                            #print("List of infected nodes for virus", i, ": ", self.infected_nodes(i))
+
+                            with open('infected.csv', 'a') as f:
+                                f.write(str(self.step_number))
+                                f.write(',')
+                                f.write(str(i))
+                                f.write(':')
+                                f.write(str(self.infected_nodes(i)))
+                                f.write('\n')
+
+                    for i in self.misinformation:
+                        if i < self.misinformation[0]['num_virus']:
+                            #print("List of exposed nodes for virus", i, ": ", self.exposed_nodes(i))
+
+                            with open('exposed.csv', 'a') as e:
+                                e.write(str(self.step_number))
+                                e.write(',')
+                                e.write(str(i))
+                                e.write(':')
+                                e.write(str(self.exposed_nodes(i)))
+                                e.write('\n')
 
     def run_model(self, n):
         for i in range(n):
@@ -285,29 +311,29 @@ class VirusOnNetwork(mesa.Model):
 class VirusAgent(mesa.Agent):
 
     def __init__(
-        self,
-        unique_id,
-        model,
-        j,
-        virus,
-        initial_outbreak_size_virus_0,
-        initial_outbreak_size_virus_1,
-        initial_outbreak_size_virus_2,
-        virus_0_spread_chance,
-        virus_1_spread_chance,
-        virus_2_spread_chance,
-        virus_0_check_frequency,
-        virus_1_check_frequency,
-        virus_2_check_frequency,
-        exposed_chance_virus_0,
-        exposed_chance_virus_1,
-        exposed_chance_virus_2,
-        gain_skeptical_chance_virus_0,
-        gain_skeptical_chance_virus_1,
-        gain_skeptical_chance_virus_2,
-        skeptical_level_virus_0,
-        skeptical_level_virus_1,
-        skeptical_level_virus_2,
+            self,
+            unique_id,
+            model,
+            j,
+            virus,
+            initial_outbreak_size_virus_0,
+            initial_outbreak_size_virus_1,
+            initial_outbreak_size_virus_2,
+            virus_0_spread_chance,
+            virus_1_spread_chance,
+            virus_2_spread_chance,
+            virus_0_check_frequency,
+            virus_1_check_frequency,
+            virus_2_check_frequency,
+            exposed_chance_virus_0,
+            exposed_chance_virus_1,
+            exposed_chance_virus_2,
+            gain_skeptical_chance_virus_0,
+            gain_skeptical_chance_virus_1,
+            gain_skeptical_chance_virus_2,
+            skeptical_level_virus_0,
+            skeptical_level_virus_1,
+            skeptical_level_virus_2,
     ):
 
         super().__init__(unique_id, model)
@@ -363,6 +389,7 @@ class VirusAgent(mesa.Agent):
                 if self.random.random() > self.misinformation[i]['skeptical_level']:
                     a.misinformation[i]['infected'] = 'yes'
                     a.misinformation[0]['infected_list'].append(("infected by node:", self.pos, "with virus", i))
+                    a.misinformation[i]['exposed'] = 'no'
                     if a.misinformation[i]['opposite_virus'] is not None:
                         a.misinformation[a.misinformation[i]['opposite_virus']]['skeptical_level'] = .90
                         if a.misinformation[a.misinformation[i]['opposite_virus']]['infected'] == 'yes':
