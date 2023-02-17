@@ -89,7 +89,7 @@ class VirusOnNetwork(mesa.Model):
         self.step_number = 0
         self.num_nodes = num_nodes
         prob = avg_node_degree / self.num_nodes
-        self.G = nx.erdos_renyi_graph(n=self.num_nodes, p=prob)
+        self.G = nx.erdos_renyi_graph(n=self.num_nodes, p=prob, directed=True)
         self.grid = mesa.space.NetworkGrid(self.G)
         self.schedule = mesa.time.RandomActivation(self)
         self.j = j
@@ -246,62 +246,83 @@ class VirusOnNetwork(mesa.Model):
     def exposed_nodes(self, i):
         exposed_nodes = {0: [], 1: [], 2: []}
         for a in self.grid.get_cell_list_contents(self.G.nodes):
-            if a.misinformation[i]['exposed'] == 'yes':
+            if a.misinformation[i]['exposed'] == 'yes' and a.misinformation[i]['infected'] == 'no':
                 exposed_nodes[i].append(a.unique_id)
         return exposed_nodes[i]
 
+    def not_infected_or_exposed_nodes(self, i):
+        not_infected_or_exposed_nodes = {0: [], 1:[], 2: []}
+        for a in self.grid.get_cell_list_contents(self.G.nodes):
+            if a.misinformation[i]['infected'] == 'no' and a.misinformation[i]['exposed'] == 'no':
+                not_infected_or_exposed_nodes[i].append(a.unique_id)
+        return not_infected_or_exposed_nodes[i]
+
     with open('infected.csv', 'w') as f:
         with open('exposed.csv', 'w') as e:
-            with open('dictionary.csv', 'w') as d:
+            with open('not_infected_or_exposed.csv', 'w') as n:    
+                with open('dictionary.csv', 'w') as d:
 
-                def step(self):
-                    self.schedule.step()
-                    # collect data
-                    self.datacollector.collect(self)
-                    self.step_number = self.step_number + 1
-                    #print(self.G.nodes)
-                    #print(self.misinformation)
-                    # print(self.G.edges)
-                    # print(today, current_time)
-                    with open('dictionary.csv', 'a') as d:
-                        d.write(str(self.step_number))
-                        d.write('\n')
-                    for i in self.grid.get_cell_list_contents(self.G.nodes):
-                        print(i.unique_id)
-                        print(i.misinformation)
+                    def step(self):
+                        self.schedule.step()
+                        # collect data
+                        self.datacollector.collect(self)
+                        self.step_number = self.step_number + 1
+                        #print(self.G.nodes)
+                        #print(self.misinformation)
+                        #print(self.G.edges)
+                        #print(today, current_time)
                         with open('dictionary.csv', 'a') as d:
-                            d.write('|')
-                            d.write(str(i.unique_id))
-                            d.write(str(i.misinformation))
-                            d.write('|')
+                            d.write(str(self.step_number))
                             d.write('\n')
+                        for i in self.grid.get_cell_list_contents(self.G.nodes):
+                            print(i.unique_id)
+                            print(i.misinformation)
+                            with open('dictionary.csv', 'a') as d:
+                                d.write('|')
+                                d.write(str(i.unique_id))
+                                d.write(str(i.misinformation))
+                                d.write('|')
+                                d.write('\n')
 
-                        #with open('dictionary.csv', 'w') as d:
-                            #d.write()
+                            #with open('dictionary.csv', 'w') as d:
+                                        #d.write()
 
-                    for i in self.misinformation:
-                        if i < self.misinformation[0]['num_virus']:
-                            #print("List of infected nodes for virus", i, ": ", self.infected_nodes(i))
+                        for i in self.misinformation:
+                            if i < self.misinformation[0]['num_virus']:
+                                #print("List of infected nodes for virus", i, ": ", self.infected_nodes(i))
+                                
+                                with open('infected.csv', 'a') as f:
+                                    f.write(str(self.step_number))
+                                    f.write(',')
+                                    f.write(str(i))
+                                    f.write(',')
+                                    f.write(str(self.infected_nodes(i)))
+                                    f.write(',\n')
 
-                            with open('infected.csv', 'a') as f:
-                                f.write(str(self.step_number))
-                                f.write(',')
-                                f.write(str(i))
-                                f.write(':')
-                                f.write(str(self.infected_nodes(i)))
-                                f.write('\n')
+                        for i in self.misinformation:
+                            if i < self.misinformation[0]['num_virus']:
+                                #print("List of exposed nodes for virus", i, ": ", self.exposed_nodes(i))
+                                
+                                with open('exposed.csv', 'a') as e:
+                                    e.write(str(self.step_number))
+                                    e.write(',')
+                                    e.write(str(i))
+                                    e.write(',')
+                                    e.write(str(self.exposed_nodes(i)))
+                                    e.write(',\n')
 
-                    for i in self.misinformation:
-                        if i < self.misinformation[0]['num_virus']:
-                            #print("List of exposed nodes for virus", i, ": ", self.exposed_nodes(i))
 
-                            with open('exposed.csv', 'a') as e:
-                                e.write(str(self.step_number))
-                                e.write(',')
-                                e.write(str(i))
-                                e.write(':')
-                                e.write(str(self.exposed_nodes(i)))
-                                e.write('\n')
+                        for i in self.misinformation:
+                            if i < self.misinformation[0]['num_virus']:
+                                
+                                with open('not_infected_or_exposed.csv', 'a') as n:
+                                    n.write(str(self.step_number))
+                                    n.write(',')
+                                    n.write(str(i))
+                                    n.write(',')
+                                    n.write(str(self.not_infected_or_exposed_nodes(i)))
+                                    n.write(',\n')
+
 
     def run_model(self, n):
         for i in range(n):
@@ -365,6 +386,9 @@ class VirusAgent(mesa.Agent):
         self.misinformation[1]['skeptical_level'] = skeptical_level_virus_1
         self.misinformation[2]['skeptical_level'] = skeptical_level_virus_2
 
+        
+
+
     def try_exposing(self, i):
         # Try to expose
         neighbors_nodes = self.model.grid.get_neighbors(self.pos, include_center=True)
@@ -394,7 +418,7 @@ class VirusAgent(mesa.Agent):
                         a.misinformation[a.misinformation[i]['opposite_virus']]['skeptical_level'] = .90
                         if a.misinformation[a.misinformation[i]['opposite_virus']]['infected'] == 'yes':
                             a.misinformation[a.misinformation[i]['opposite_virus']]['infected'] = 'no'
-
+                    
     def try_gain_skeptical(self, i):
         if self.random.random() < self.misinformation[i]['gain_skeptical_chance']:
             if self.misinformation[i]['skeptical_level'] < .91:
@@ -429,3 +453,5 @@ class VirusAgent(mesa.Agent):
         for i in self.misinformation:
             if i < self.misinformation[0]['num_virus']:
                 self.try_check_situation(i)
+        
+        
