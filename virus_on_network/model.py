@@ -254,7 +254,7 @@ class VirusOnNetwork(mesa.Model):
     def exposed_nodes(self, i):
         exposed_nodes = {0: [], 1: [], 2: []}
         for a in self.grid.get_cell_list_contents(self.G.nodes):
-            if a.misinformation[i]['exposed'] == 'yes':
+            if a.misinformation[i]['exposed'] == 'yes' and a.misinformation[i]['infected'] == 'no':
                 exposed_nodes[i].append(a.unique_id)
         return exposed_nodes[i]
 
