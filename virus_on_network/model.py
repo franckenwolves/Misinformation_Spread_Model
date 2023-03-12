@@ -166,6 +166,7 @@ class VirusOnNetwork(mesa.Model):
             a = VirusAgent(
                 i,
                 self,
+                self.G,
                 self.j,
                 self.virus,
                 self.initial_outbreak_size_virus_0,
@@ -200,15 +201,15 @@ class VirusOnNetwork(mesa.Model):
                 x=x[:-1]
                 a=x.split(',')[0]
                 b=x.split(',')[-1]
-                G[int(a)][int(b)]['weight'] = 0
+                G[int(a)][int(b)]['weight'] = .5
                 if G.has_edge(int(b), int(a)) is False:
                     G.add_edge(int(b), int(a))
-                    G[int(b)][int(a)]['weight'] = np.random.rand()
+                    G[int(b)][int(a)]['weight'] = .5 #np.random.rand()
         
         create_bidirectional_edges_with_weights(self.G)
 
         #print(self.G.nodes)
-        print(self.G.number_of_edges(), '\n')
+        #print(self.G.number_of_edges(), '\n')
 
         with open('edgelist.csv', 'w') as f:
             for i in self.G.edges:
@@ -365,12 +366,13 @@ class VirusOnNetwork(mesa.Model):
             self.step()
 
 
-class VirusAgent(mesa.Agent):
+class VirusAgent(mesa.Agent, VirusOnNetwork):
 
     def __init__(
             self,
             unique_id,
             model,
+            VirusOnNetwork,
             j,
             virus,
             initial_outbreak_size_virus_0,
@@ -402,6 +404,7 @@ class VirusAgent(mesa.Agent):
                                    }}
         self.step_number = 0
         self.virus = virus
+        self.G=VirusOnNetwork
         self.misinformation[0]['num_virus'] = j
         self.misinformation[0]['initial_outbreak_size'] = initial_outbreak_size_virus_0
         self.misinformation[1]['initial_outbreak_size'] = initial_outbreak_size_virus_1
@@ -422,7 +425,13 @@ class VirusAgent(mesa.Agent):
         self.misinformation[1]['skeptical_level'] = skeptical_level_virus_1
         self.misinformation[2]['skeptical_level'] = skeptical_level_virus_2
 
-        
+    def edge_test(self, node1, node2):
+        #print(self.G[node1][node2]['weight'])
+        print(self.G[0])
+        #for a in self.G.neighbors(0):
+            #print(self.G.get_edge_data(0,a))
+
+
     def try_exposing(self, i):
         # Try to expose
         neighbors_nodes = self.model.grid.get_neighbors(self.pos, include_center=True)
@@ -448,12 +457,17 @@ class VirusAgent(mesa.Agent):
         
             for a in exposed_neighbors:
                 #print(self.misinformation[i]['spread_chance'])
-                if self.random.random() < self.misinformation[i]['spread_chance']:
+                #print(a.pos)
+                #self.edge_test(i,a)
+                #print((self.G.get_edge_data(i,a)))
+                print("Spread chance without multiplying weight", self.misinformation[i]['spread_chance'])
+                if self.random.random() < (self.misinformation[i]['spread_chance']*self.G[self.pos][a.pos]['weight']):
+                    print("Spread chance while multiplying weight",(self.misinformation[i]['spread_chance']*self.G[self.pos][a.pos]['weight']))
                     if self.random.random() > self.misinformation[i]['skeptical_level']:
                         a.misinformation[i]['infected'] = 'yes'
                         a.misinformation[0]['infected_list'].append(("infected by node:", self.pos, "with virus", i))
-                        print()
-                        print(a.unique_id, a.misinformation[0]['infected_list'])
+                        #print()
+                        #print(a.unique_id, a.misinformation[0]['infected_list'])
                         
                         with open('infected_by.csv', 'a') as f:
                             f.write(str(self.step_number))
@@ -485,7 +499,7 @@ class VirusAgent(mesa.Agent):
             self.try_gain_skeptical(i)
 
     def step(self):
-
+        #self.edge_test()
         for i in self.misinformation:
             if i < self.misinformation[0]['num_virus']:
                 if self.misinformation[i]['infected'] == 'yes':
