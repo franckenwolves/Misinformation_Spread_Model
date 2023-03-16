@@ -194,23 +194,47 @@ class VirusOnNetwork(mesa.Model):
         self.running = True
         self.datacollector.collect(self)
 
-        def create_bidirectional_edges_with_weights(G):
-            for edge in G.edges:
-                x=str(edge)
-                x=x[1:]
-                x=x[:-1]
-                a=x.split(',')[0]
-                b=x.split(',')[-1]
-                G[int(a)][int(b)]['weight'] = .5
-                if G.has_edge(int(b), int(a)) is False:
-                    G.add_edge(int(b), int(a))
-                    G[int(b)][int(a)]['weight'] = .5 #np.random.rand()
-        
+        with open('weighted_edgelist.csv', 'w') as f:
+            def create_bidirectional_edges_with_weights(G):
+                            
+                for edge in G.edges:
+                    x=str(edge)
+                    x=x[1:]
+                    x=x[:-1]
+                    a=x.split(',')[0]
+                    b=x.split(',')[-1]
+                    G[int(a)][int(b)]['weight'] = np.random.rand()
+                    
+                    with open('weighted_edgelist.csv', 'a') as f:
+                        f.write(str(edge))
+                        f.write(',')
+                        f.write(str(G[int(a)][int(b)]['weight']))
+                        f.write(',\n')
+
+                        if G.has_edge(int(b), int(a)) is False:
+                            opposite_edge = G.add_edge(int(b), int(a))
+                            G[int(b)][int(a)]['weight'] = np.random.rand()
+                            #with open('weighted_edgelist.csv', 'a') as f:
+                            f.write(str(opposite_edge))
+                            f.write(',')
+                            f.write(str(G[int(b)][int(a)]['weight']))
+                            f.write(',\n')
+                        
+                        else:
+                            opposite_edge = G.has_edge(int(b), int(a))
+                            G[int(b)][int(a)]['weight'] = np.random.rand()
+                            #with open('weighted_edgelist.csv', 'a') as f:
+                            f.write(str(opposite_edge))
+                            f.write(',')
+                            f.write(str(G[int(b)][int(a)]['weight']))
+                            f.write(',\n')
+                    
         create_bidirectional_edges_with_weights(self.G)
 
-        #print(self.G.nodes)
-        #print(self.G.number_of_edges(), '\n')
-
+        print(self.G.nodes)
+        print("\nNumber of Edges")
+        print(self.G.number_of_edges(), '\n')
+        
         with open('edgelist.csv', 'w') as f:
             for i in self.G.edges:
                 #print(i)
@@ -222,7 +246,8 @@ class VirusOnNetwork(mesa.Model):
                     f.write(str(u))
                     if (g%2) != 0:
                         f.write(',')
-        
+            f.write('|')
+
         with open('centrality.csv', 'w') as f:
             f.write('Node: Degree Centrality\n')
             f.write(str(nx.degree_centrality(self.G)))
@@ -233,9 +258,8 @@ class VirusOnNetwork(mesa.Model):
 
         # Infect some nodes
         for i in self.misinformation:
-            if i < self.misinformation[0]['num_virus'] and 'weight' != 0: # and self.G.edges[int(a)][int(b)]['weight'] > 0:
-                #weight = float(self.G[int(a)][int(b)]['weight'])
-                #if  weight >= .3:
+            if i < self.misinformation[0]['num_virus']:
+                
                 infected_nodes = self.random.sample(list(self.G), self.misinformation[i]['initial_outbreak_size'])
                 # print(infected_nodes)
                 for a in self.grid.get_cell_list_contents(infected_nodes):
@@ -360,11 +384,9 @@ class VirusOnNetwork(mesa.Model):
                                     n.write(str(self.not_infected_or_exposed_nodes(i)))
                                     n.write(',\n')
 
-
     def run_model(self, n):
         for i in range(n):
             self.step()
-
 
 class VirusAgent(mesa.Agent, VirusOnNetwork):
 
@@ -402,6 +424,8 @@ class VirusAgent(mesa.Agent, VirusOnNetwork):
                                    },
                                2: {'infected': 'no', 'exposed': 'no', 'initial_outbreak_size': 1, 'spread_chance': 1, 'exposed_chance': 1, 'skeptical_level': 0, 'virus_check_frequency': 0, 'gain_skeptical_chance': 1, 'opposite_virus': None,
                                    }}
+        #self.G = nx.erdos_renyi_graph(n=self.num_nodes, p=prob, directed=True)
+       
         self.step_number = 0
         self.virus = virus
         self.G=VirusOnNetwork
@@ -424,13 +448,12 @@ class VirusAgent(mesa.Agent, VirusOnNetwork):
         self.misinformation[0]['skeptical_level'] = skeptical_level_virus_0
         self.misinformation[1]['skeptical_level'] = skeptical_level_virus_1
         self.misinformation[2]['skeptical_level'] = skeptical_level_virus_2
-
+     
     def edge_test(self, node1, node2):
         #print(self.G[node1][node2]['weight'])
         print(self.G[0])
-        #for a in self.G.neighbors(0):
+        #for a in self.neighbors(0):
             #print(self.G.get_edge_data(0,a))
-
 
     def try_exposing(self, i):
         # Try to expose
@@ -441,11 +464,11 @@ class VirusAgent(mesa.Agent, VirusOnNetwork):
             if agent.misinformation[i]['exposed'] == 'no' and agent.misinformation[i]['infected'] == 'no'
         ]
         for a in susceptible_neighbors:
-            if self.random.random() < self.misinformation[i]['skeptical_level']:
+            if self.random.random() < self.misinformation[i]['skeptical_level']:#*VirusOnNetwork.G:
                 a.misinformation[i]['exposed'] = 'yes'
 
     with open('infected_by.csv', 'w') as f:
-        
+        #f.write('node, infected by, node number, with virus, number\n')
         def try_to_infect_neighbors(self, i):
             self.step_number += 1
             neighbors_nodes = self.model.grid.get_neighbors(self.pos, include_center=True)
@@ -454,35 +477,37 @@ class VirusAgent(mesa.Agent, VirusOnNetwork):
                 for agent in self.model.grid.get_cell_list_contents(neighbors_nodes)
                 if agent.misinformation[i]['exposed'] == 'yes' and agent.misinformation[i]['infected'] == 'no'
             ]
-        
+            
             for a in exposed_neighbors:
+                
                 #print(self.misinformation[i]['spread_chance'])
                 #print(a.pos)
                 #self.edge_test(i,a)
                 #print((self.G.get_edge_data(i,a)))
                 print("Spread chance without multiplying weight", self.misinformation[i]['spread_chance'])
-                if self.random.random() < (self.misinformation[i]['spread_chance']*self.G[self.pos][a.pos]['weight']):
-                    print("Spread chance while multiplying weight",(self.misinformation[i]['spread_chance']*self.G[self.pos][a.pos]['weight']))
+                if self.random.random() < self.misinformation[i]['spread_chance']*self.G[self.pos][a.pos]['weight']:
+                    print("Spread chance while multiplying weight", (self.misinformation[i]['spread_chance']*self.G[self.pos][a.pos]['weight']))
                     if self.random.random() > self.misinformation[i]['skeptical_level']:
                         a.misinformation[i]['infected'] = 'yes'
                         a.misinformation[0]['infected_list'].append(("infected by node:", self.pos, "with virus", i))
-                        #print()
-                        #print(a.unique_id, a.misinformation[0]['infected_list'])
+                        print()
+                        print(a.unique_id, a.misinformation[0]['infected_list'])
                         
                         with open('infected_by.csv', 'a') as f:
-                            f.write(str(self.step_number))
-                            f.write('\n')
+                            #f.write("Step ")
+                            #f.write(str(self.step_number))
+                            #f.write('\n')
                             f.write(str(a.unique_id))
                             f.write(', ')
                             f.write(str(a.misinformation[0]['infected_list']))
-                            f.write('\n')
-                            
+                            f.write('\n\n')
+                                
                         a.misinformation[i]['exposed'] = 'no'
                         if a.misinformation[i]['opposite_virus'] is not None:
                             a.misinformation[a.misinformation[i]['opposite_virus']]['skeptical_level'] = .90
                             if a.misinformation[a.misinformation[i]['opposite_virus']]['infected'] == 'yes':
                                 a.misinformation[a.misinformation[i]['opposite_virus']]['infected'] = 'no'
-                
+                        
     def try_gain_skeptical(self, i):
         if self.random.random() < self.misinformation[i]['gain_skeptical_chance']:
             if self.misinformation[i]['skeptical_level'] < .91:
@@ -499,7 +524,7 @@ class VirusAgent(mesa.Agent, VirusOnNetwork):
             self.try_gain_skeptical(i)
 
     def step(self):
-        #self.edge_test()
+        self.step_number = self.step_number + 1
         for i in self.misinformation:
             if i < self.misinformation[0]['num_virus']:
                 if self.misinformation[i]['infected'] == 'yes':
