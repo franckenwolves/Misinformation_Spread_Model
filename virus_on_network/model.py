@@ -468,7 +468,7 @@ class VirusAgent(mesa.Agent, VirusOnNetwork):
                 a.misinformation[i]['exposed'] = 'yes'
 
     with open('infected_by.csv', 'w') as f:
-        #f.write('node, infected by, node number, with virus, number\n')
+        f.write('node, infected by, node number, with virus, number, infected by, node number, with virus, number, infected by, node number, with virus, number, infected by, node number, with virus, number, infected by, node number, with virus, number\n')
         def try_to_infect_neighbors(self, i):
             self.step_number += 1
             neighbors_nodes = self.model.grid.get_neighbors(self.pos, include_center=True)
