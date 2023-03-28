@@ -194,48 +194,62 @@ class VirusOnNetwork(mesa.Model):
         self.running = True
         self.datacollector.collect(self)
 
+
         with open('weighted_edgelist.csv', 'w') as f:
             def create_bidirectional_edges_with_weights(G):
-                            
+                weighted_list = []
+                print("weighted list")          
                 for edge in G.edges:
+                    #print(len(G.edges))
+                    #print((G.edges))
                     x=str(edge)
                     x=x[1:]
                     x=x[:-1]
                     a=x.split(',')[0]
                     b=x.split(',')[-1]
                     G[int(a)][int(b)]['weight'] = np.random.rand()
+                    weighted_list.append((int(a), int(b)))
                     
                     with open('weighted_edgelist.csv', 'a') as f:
                         f.write(str(edge))
                         f.write(',')
-                        f.write(str(G[int(a)][int(b)]['weight']))
+                        f.write(str(G[int(a)][int(b)]['weight']))                       
                         f.write(',\n')
 
                         if G.has_edge(int(b), int(a)) is False:
-                            opposite_edge = G.add_edge(int(b), int(a))
-                            G[int(b)][int(a)]['weight'] = np.random.rand()
+                            G.add_edge(int(b), int(a), weight = np.random.rand())
+                            opposite_edge = str((int(b), int(a)))
+                            #G[int(b)][int(a)]['weight'] = np.random.rand()
                             #with open('weighted_edgelist.csv', 'a') as f:
+                            print(str(opposite_edge))
                             f.write(str(opposite_edge))
                             f.write(',')
                             f.write(str(G[int(b)][int(a)]['weight']))
+                            #weighted_list.append((int(b), int(a)))
                             f.write(',\n')
                         
-                        else:
-                            opposite_edge = G.has_edge(int(b), int(a))
+                        '''else:
+                            opposite_edge = G[int(b)][int(a)]
+                            #print(opposite_edge)
                             G[int(b)][int(a)]['weight'] = np.random.rand()
                             #with open('weighted_edgelist.csv', 'a') as f:
                             f.write(str(opposite_edge))
                             f.write(',')
                             f.write(str(G[int(b)][int(a)]['weight']))
                             f.write(',\n')
+                            #weighted_list.append((int(b), int(a)))'''
                     
+
+        #print("\nNumber of Edges pre bidirectional weights")
+        #print(self.G.number_of_edges(), '\n')                    
         create_bidirectional_edges_with_weights(self.G)
 
-        print(self.G.nodes)
-        print("\nNumber of Edges")
-        print(self.G.number_of_edges(), '\n')
+        #print(self.G.nodes)
+        #print("\nNumber of Edges")
+        #print(self.G.number_of_edges(), '\n')
         
         with open('edgelist.csv', 'w') as f:
+            print("edge list without weights")
             for i in self.G.edges:
                 #print(i)
                 f.write('|')
@@ -468,7 +482,7 @@ class VirusAgent(mesa.Agent, VirusOnNetwork):
                 a.misinformation[i]['exposed'] = 'yes'
 
     with open('infected_by.csv', 'w') as f:
-        f.write('node, infected by, node number, with virus, number, infected by, node number, with virus, number, infected by, node number, with virus, number, infected by, node number, with virus, number, infected by, node number, with virus, number\n\n')
+        #f.write('node, infected by, node number, with virus, number\n')
         def try_to_infect_neighbors(self, i):
             self.step_number += 1
             neighbors_nodes = self.model.grid.get_neighbors(self.pos, include_center=True)
