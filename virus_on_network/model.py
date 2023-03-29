@@ -194,11 +194,24 @@ class VirusOnNetwork(mesa.Model):
         self.running = True
         self.datacollector.collect(self)
 
+        def create_bidirectional_edges(G):
+            edge_tuple_list=[]
+            for edge in G.edges:
+                x=str(edge)
+                x=x[1:]
+                x=x[:-1]
+                a=x.split(',')[0]
+                b=x.split(',')[-1]
+                if G.has_edge(int(b), int(a)) is False:
+                    edge_tuple_list.append((int(b), int(a)))
+            print("number of edges added")
+            print(len(edge_tuple_list))
+            G.add_edges_from(edge_tuple_list)
 
         with open('weighted_edgelist.csv', 'w') as f:
-            def create_bidirectional_edges_with_weights(G):
+            def create_bidirectional_edge_weights(G):
                 weighted_list = []
-                print("weighted list")          
+                #print("weighted list")          
                 for edge in G.edges:
                     #print(len(G.edges))
                     #print((G.edges))
@@ -208,45 +221,24 @@ class VirusOnNetwork(mesa.Model):
                     a=x.split(',')[0]
                     b=x.split(',')[-1]
                     G[int(a)][int(b)]['weight'] = np.random.rand()
-                    weighted_list.append((int(a), int(b)))
+                    if (int(a), int(b)) not in weighted_list:
+                        weighted_list.append((int(a), int(b)))
                     
                     with open('weighted_edgelist.csv', 'a') as f:
                         f.write(str(edge))
                         f.write(',')
                         f.write(str(G[int(a)][int(b)]['weight']))                       
                         f.write(',\n')
+                   
+                print("length of weighted edge list")
+                print(len(weighted_list))    
 
-                        if G.has_edge(int(b), int(a)) is False:
-                            G.add_edge(int(b), int(a), weight = np.random.rand())
-                            opposite_edge = str((int(b), int(a)))
-                            #G[int(b)][int(a)]['weight'] = np.random.rand()
-                            #with open('weighted_edgelist.csv', 'a') as f:
-                            print(str(opposite_edge))
-                            f.write(str(opposite_edge))
-                            f.write(',')
-                            f.write(str(G[int(b)][int(a)]['weight']))
-                            #weighted_list.append((int(b), int(a)))
-                            f.write(',\n')
-                        
-                        '''else:
-                            opposite_edge = G[int(b)][int(a)]
-                            #print(opposite_edge)
-                            G[int(b)][int(a)]['weight'] = np.random.rand()
-                            #with open('weighted_edgelist.csv', 'a') as f:
-                            f.write(str(opposite_edge))
-                            f.write(',')
-                            f.write(str(G[int(b)][int(a)]['weight']))
-                            f.write(',\n')
-                            #weighted_list.append((int(b), int(a)))'''
-                    
-
-        #print("\nNumber of Edges pre bidirectional weights")
-        #print(self.G.number_of_edges(), '\n')                    
-        create_bidirectional_edges_with_weights(self.G)
-
-        #print(self.G.nodes)
-        #print("\nNumber of Edges")
-        #print(self.G.number_of_edges(), '\n')
+        print("\nNumber of Edges pre bidirectional")
+        print(self.G.number_of_edges())                    
+        create_bidirectional_edges(self.G)
+        create_bidirectional_edge_weights(self.G)
+        print("Number of Edges")
+        print(self.G.number_of_edges())
         
         with open('edgelist.csv', 'w') as f:
             print("edge list without weights")
